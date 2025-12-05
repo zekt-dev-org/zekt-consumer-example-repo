@@ -1,0 +1,24 @@
+name: Zekt Workflow Consumer
+
+on:
+  repository_dispatch:
+    types: [zekt-workflow-completed]
+
+jobs:
+  handle-zekt-event:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Display event information
+        run: |
+          echo "Event Type: ${{ github.event.action }}"
+          echo "Client Payload: ${{ toJson(github.event.client_payload) }}"
+
+      - name: Process Zekt workflow completion
+        run: |
+          echo "Processing zekt-workflow-completed event..."
+          # Add your custom processing logic here
+          echo "Workflow completed successfully!"
