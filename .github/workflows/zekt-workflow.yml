@@ -13,12 +13,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Display event information
+        shell: pwsh
         run: |
-          echo "Event Type: ${{ github.event.action }}"
-          echo "Client Payload: ${{ toJson(github.event.client_payload) }}"
+          $event = '${{ toJson(github.event) }}' | ConvertFrom-Json
+          Write-Host "Full Event Object:" -ForegroundColor Cyan
+          Write-Host ($event | ConvertTo-Json -Depth 10)
 
       - name: Process Zekt workflow completion
+        shell: pwsh
         run: |
-          echo "Processing zekt-workflow-completed event..."
+          Write-Host "Processing zekt-workflow-completed event..." -ForegroundColor Green
           # Add your custom processing logic here
-          echo "Workflow completed successfully!"
+          Write-Host "Workflow completed successfully!" -ForegroundColor Green
