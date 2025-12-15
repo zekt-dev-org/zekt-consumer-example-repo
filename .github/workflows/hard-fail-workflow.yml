@@ -1,0 +1,18 @@
+name: Zekt Receive - Fail Test
+on:
+  repository_dispatch:
+    types: [zekt-workflow-completed]
+
+jobs:
+  receive-and-fail:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log received event
+        run: |
+          echo "Received event type: ${{ github.event.client_payload.eventType }}"
+          echo "This workflow will now fail intentionally..."
+      
+      - name: Intentionally fail
+        run: |
+          echo "Simulating failure for durable delivery retry testing"
+          exit 1
