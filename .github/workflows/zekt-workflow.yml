@@ -2,7 +2,7 @@ name: Zekt Workflow Consumer
 
 on:
   repository_dispatch:
-    types: [zekt-workflow-completed]
+    types: [provider-test-event]
 
 jobs:
   handle-zekt-event:
@@ -22,6 +22,6 @@ jobs:
       - name: Process Zekt workflow completion
         shell: pwsh
         run: |
-          Write-Host "Processing zekt-workflow-completed event..." -ForegroundColor Green
+          Write-Host "Processing provider-test-event ..." -ForegroundColor Green
           # Add your custom processing logic here
           Write-Host "Workflow completed successfully!" -ForegroundColor Green
