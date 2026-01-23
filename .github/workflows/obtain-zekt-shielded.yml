@@ -1,4 +1,4 @@
-name: Zekt Workflow Consumer
+name: Consume Shielded payloads
 
 on:
   repository_dispatch:
