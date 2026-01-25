@@ -19,6 +19,46 @@ jobs:
           Write-Host "Full Event Object:" -ForegroundColor Cyan
           Write-Host ($event | ConvertTo-Json -Depth 10)
 
+      - name: Decrypt shielded payload
+        shell: pwsh
+        env:
+          PRIVATE_KEY: ${{ secrets.SHIELD_PRIV_KEY }}
+        run: |
+          # Extract the encrypted payload from the event
+          $event = '${{ toJson(github.event) }}' | ConvertFrom-Json
+          $encryptedPayload = $event.client_payload.zekt.payload.recipients[0].encryptedPayload
+          
+          Write-Host "Decrypting payload using RSA-OAEP..." -ForegroundColor Cyan
+          
+          # Save private key to temporary file
+          $privateKeyPath = [System.IO.Path]::GetTempFileName()
+          $env:PRIVATE_KEY | Out-File -FilePath $privateKeyPath -Encoding ASCII
+          
+          # Save encrypted payload to file (base64 decode first)
+          $encryptedFile = [System.IO.Path]::GetTempFileName()
+          [System.Convert]::FromBase64String($encryptedPayload) | Set-Content -Path $encryptedFile -AsByteStream
+          
+          # Decrypt using OpenSSL with RSA-OAEP
+          $decryptedFile = [System.IO.Path]::GetTempFileName()
+          openssl pkeyutl -decrypt -inkey $privateKeyPath -in $encryptedFile -out $decryptedFile -pkeyopt rsa_padding_mode:oaep
+          
+          # Read decrypted content
+          $decryptedPayload = Get-Content -Path $decryptedFile -Raw
+          Write-Host "Decrypted Payload:" -ForegroundColor Green
+          Write-Host $decryptedPayload
+          
+          # Clean up temporary files
+          Remove-Item $privateKeyPath, $encryptedFile, $decryptedFile -Force
+          
+          # Export for use in subsequent steps
+          "DECRYPTED_PAYLOAD<<EOF" >> $env:GITHUB_OUTPUT
+          $decryptedPayload >> $env:GITHUB_OUTPUT
+          "EOF" >> $env:GITHUB_OUTPUT
+          
+          # Verify decryption success
+          Write-Host "`nDecrypted payload verified:" -ForegroundColor Magenta
+          Write-Host $decryptedPayload -ForegroundColor Yellow
+
       - name: Process Zekt workflow completion
         shell: pwsh
         run: |
