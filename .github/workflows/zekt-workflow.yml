@@ -1,4 +1,4 @@
-name: Zekt Workflow Consumer
+name: Zekt Workflow Standard Consumer
 
 on:
   repository_dispatch:
