@@ -26,26 +26,96 @@ jobs:
         run: |
           # Extract the encrypted payload from the event
           $event = '${{ toJson(github.event) }}' | ConvertFrom-Json
-          $encryptedPayload = $event.client_payload.zekt.payload.recipients[0].encryptedPayload
           
-          Write-Host "Decrypting payload using RSA-OAEP..." -ForegroundColor Cyan
+          Write-Host "`n=== DEBUG: Event Structure ===" -ForegroundColor Cyan
+          Write-Host "Has client_payload: $($null -ne $event.client_payload)" -ForegroundColor Yellow
+          Write-Host "Has zekt: $($null -ne $event.client_payload.zekt)" -ForegroundColor Yellow
+          Write-Host "Has payload: $($null -ne $event.client_payload.zekt.payload)" -ForegroundColor Yellow
+          Write-Host "Has recipients: $($null -ne $event.client_payload.zekt.payload.recipients)" -ForegroundColor Yellow
+          Write-Host "Recipients count: $($event.client_payload.zekt.payload.recipients.Count)" -ForegroundColor Yellow
+          
+          if ($event.client_payload.zekt.payload.recipients.Count -gt 0) {
+            $recipient = $event.client_payload.zekt.payload.recipients[0]
+            Write-Host "Recipient properties: $($recipient.PSObject.Properties.Name -join ', ')" -ForegroundColor Yellow
+          }
+          
+          # Try both possible property names
+          $encryptedPayload = $event.client_payload.zekt.payload.recipients[0].encryptedPayload
+          if ([string]::IsNullOrEmpty($encryptedPayload)) {
+            Write-Host "encryptedPayload is null/empty, trying encryptionPayload..." -ForegroundColor Yellow
+            $encryptedPayload = $event.client_payload.zekt.payload.recipients[0].encryptionPayload
+          }
+          
+          if ([string]::IsNullOrEmpty($encryptedPayload)) {
+            Write-Host "ERROR: No encrypted payload found!" -ForegroundColor Red
+            exit 1
+          }
+          
+          Write-Host "`nEncrypted payload length: $($encryptedPayload.Length) characters" -ForegroundColor Yellow
+          Write-Host "Encrypted payload preview: $($encryptedPayload.Substring(0, [Math]::Min(100, $encryptedPayload.Length)))..." -ForegroundColor Yellow
+          Write-Host "Algorithm: $($event.client_payload.zekt.payload.algorithm)" -ForegroundColor Yellow
+          
+          Write-Host "`nDecrypting payload using RSA-OAEP..." -ForegroundColor Cyan
+          
+          # Check private key
+          if ([string]::IsNullOrEmpty($env:PRIVATE_KEY)) {
+            Write-Host "ERROR: PRIVATE_KEY environment variable is empty!" -ForegroundColor Red
+            exit 1
+          }
+          Write-Host "Private key loaded: $($env:PRIVATE_KEY.Length) characters" -ForegroundColor Yellow
           
           # Save private key to temporary file
           $privateKeyPath = [System.IO.Path]::GetTempFileName()
-          $env:PRIVATE_KEY | Out-File -FilePath $privateKeyPath -Encoding ASCII
+          $env:PRIVATE_KEY | Out-File -FilePath $privateKeyPath -Encoding ASCII -NoNewline
+          
+          # Verify private key format
+          Write-Host "`nVerifying private key format..." -ForegroundColor Cyan
+          $keyCheck = openssl rsa -in $privateKeyPath -check -noout 2>&1
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "WARNING: Private key validation failed: $keyCheck" -ForegroundColor Yellow
+          } else {
+            Write-Host "Private key format is valid" -ForegroundColor Green
+          }
           
           # Save encrypted payload to file (base64 decode first)
           $encryptedFile = [System.IO.Path]::GetTempFileName()
-          [System.Convert]::FromBase64String($encryptedPayload) | Set-Content -Path $encryptedFile -AsByteStream
+          try {
+            $encryptedBytes = [System.Convert]::FromBase64String($encryptedPayload)
+            Write-Host "Base64 decoded to $($encryptedBytes.Length) bytes" -ForegroundColor Yellow
+            [System.IO.File]::WriteAllBytes($encryptedFile, $encryptedBytes)
+          } catch {
+            Write-Host "ERROR: Failed to decode base64: $_" -ForegroundColor Red
+            Remove-Item $privateKeyPath -Force -ErrorAction SilentlyContinue
+            exit 1
+          }
           
-          # Decrypt using OpenSSL with RSA-OAEP
+          # Decrypt using OpenSSL with RSA-OAEP (try with SHA-256 hash)
           $decryptedFile = [System.IO.Path]::GetTempFileName()
-          openssl pkeyutl -decrypt -inkey $privateKeyPath -in $encryptedFile -out $decryptedFile -pkeyopt rsa_padding_mode:oaep
+          Write-Host "`nAttempting decryption with RSA-OAEP-SHA256..." -ForegroundColor Cyan
+          $decryptOutput = openssl pkeyutl -decrypt -inkey $privateKeyPath -in $encryptedFile -out $decryptedFile -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 2>&1
+          
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "SHA-256 failed, trying SHA-1..." -ForegroundColor Yellow
+            $decryptOutput = openssl pkeyutl -decrypt -inkey $privateKeyPath -in $encryptedFile -out $decryptedFile -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha1 2>&1
+          }
+          
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "ERROR: Decryption failed!" -ForegroundColor Red
+            Write-Host "OpenSSL output: $decryptOutput" -ForegroundColor Red
+            Remove-Item $privateKeyPath, $encryptedFile, $decryptedFile -Force -ErrorAction SilentlyContinue
+            exit 1
+          }
           
           # Read decrypted content
-          $decryptedPayload = Get-Content -Path $decryptedFile -Raw
-          Write-Host "Decrypted Payload:" -ForegroundColor Green
-          Write-Host $decryptedPayload
+          if (Test-Path $decryptedFile) {
+            $decryptedPayload = Get-Content -Path $decryptedFile -Raw
+            Write-Host "`n=== Decryption Successful ===" -ForegroundColor Green
+            Write-Host "Decrypted Payload:" -ForegroundColor Green
+            Write-Host $decryptedPayload
+          } else {
+            Write-Host "ERROR: Decrypted file not found!" -ForegroundColor Red
+            exit 1
+          }
           
           # Clean up temporary files
           Remove-Item $privateKeyPath, $encryptedFile, $decryptedFile -Force
