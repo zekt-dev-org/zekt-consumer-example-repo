@@ -1,0 +1,37 @@
+name: Zekt Redaction Consumer
+
+on:
+  repository_dispatch:
+    types: [zekt-custom-redaction-provider-event]
+
+jobs:
+  handle-zekt-event:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Display event information
+        shell: pwsh
+        run: |
+          $event = '${{ toJson(github.event) }}' | ConvertFrom-Json
+          Write-Host "Full Event Object:" -ForegroundColor Cyan
+          Write-Host ($event | ConvertTo-Json -Depth 10)
+
+      - name: Decrypt redacted payload
+        shell: pwsh
+        env:
+          PRIVATE_KEY: ${{ secrets.SHIELD_PRIV_KEY }}
+        run: |
+          # Extract the encrypted payload from the event
+          $event = '${{ toJson(github.event) }}' | ConvertFrom-Json
+          
+          Write-Host $event
+
+      - name: Process Zekt workflow completion
+        shell: pwsh
+        run: |
+          Write-Host "Processing provider-test-event ..." -ForegroundColor Green
+          # Add your custom processing logic here
+          Write-Host "Workflow completed successfully!" -ForegroundColor Green
