@@ -19,7 +19,7 @@ jobs:
           Write-Host "Full Event Object:" -ForegroundColor Cyan
           Write-Host ($event | ConvertTo-Json -Depth 10)
 
-      - name: Process Zekt workflow completion
+      - name: Process custom Zekt action / workflow completion
         shell: pwsh
         run: |
           Write-Host "Processing custom-provider-event type..." -ForegroundColor Green
