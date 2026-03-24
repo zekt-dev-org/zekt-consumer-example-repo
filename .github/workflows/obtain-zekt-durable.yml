@@ -21,9 +21,6 @@ jobs:
 
           # - SHOW THE PAYLOAD - VALIDATE PROPERTY VALUES:
           Write-Host ("resourceType: " + $event.client_payload.zekt.payload.resourceType) -ForegroundColor Yellow
-          Write-Host ("department: " + $event.client_payload.zekt.payload.department) -ForegroundColor Yellow
-          Write-Host ("size: " + $event.client_payload.zekt.payload.size) -ForegroundColor Yellow
-
 
 
       - name: Process Zekt workflow completion
