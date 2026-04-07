@@ -1,4 +1,4 @@
-name: Custom Event Type Test
+name: Custom Event Type Consumer
 
 on:
   repository_dispatch:
@@ -20,9 +20,9 @@ jobs:
           Write-Host ($event | ConvertTo-Json -Depth 10)
 
           # - SHOW THE PAYLOAD - VALIDATE PROPERTY VALUES:
-          Write-Host ("resourceType: " + $event.client_payload.zekt.payload.resourceType) -ForegroundColor Yellow
-          Write-Host ("department: " + $event.client_payload.zekt.payload.department) -ForegroundColor Yellow
-          Write-Host ("size: " + $event.client_payload.zekt.payload.size) -ForegroundColor Yellow
+          Write-Host ("inputProperty1: " + $event.client_payload.zekt.payload.inputProperty1) -ForegroundColor Yellow
+          Write-Host ("inputProperty2: " + $event.client_payload.zekt.payload.inputProperty2) -ForegroundColor Yellow
+
 
 
       - name: Process custom Zekt action / workflow completion

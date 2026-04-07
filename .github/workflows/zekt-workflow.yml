@@ -19,6 +19,12 @@ jobs:
           Write-Host "Full Event Object:" -ForegroundColor Cyan
           Write-Host ($event | ConvertTo-Json -Depth 10)
 
+          # - SHOW THE PAYLOAD - VALIDATE PROPERTY VALUES:
+          Write-Host ("resourceType: " + $event.client_payload.zekt.payload.resourceType) -ForegroundColor Yellow
+
+
+
+
       - name: Process Zekt workflow completion
         shell: pwsh
         run: |
