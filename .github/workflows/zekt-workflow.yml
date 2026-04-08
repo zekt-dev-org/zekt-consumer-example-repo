@@ -1,4 +1,4 @@
-name: Zekt Base Workflow Standard Consumer
+name: Zekt Base Workflow Standard Consumer (event+message)
 
 on:
   repository_dispatch:
@@ -20,7 +20,7 @@ jobs:
           Write-Host ($event | ConvertTo-Json -Depth 10)
 
           # - SHOW THE PAYLOAD - VALIDATE PROPERTY VALUES:
-          Write-Host ("resourceType: " + $event.client_payload.zekt.payload.resourceType) -ForegroundColor Yellow
+          Write-Host ("requestType: " + $event.client_payload.zekt.payload.requestType) -ForegroundColor Yellow
 
 
 
