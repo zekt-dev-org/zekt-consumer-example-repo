@@ -1,4 +1,4 @@
-name: Zekt Redaction Consumer
+name: Consume Zekt Redaction Guard event & messaging
 
 on:
   repository_dispatch:

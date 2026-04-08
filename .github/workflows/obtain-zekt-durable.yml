@@ -20,7 +20,7 @@ jobs:
           Write-Host ($event | ConvertTo-Json -Depth 10)
 
           # - SHOW THE PAYLOAD - VALIDATE PROPERTY VALUES:
-          Write-Host ("resourceType: " + $event.client_payload.zekt.payload.resourceType) -ForegroundColor Yellow
+          Write-Host ("resourceType: " + $event.client_payload.zekt.payload.requestType) -ForegroundColor Yellow
 
 
       - name: Process Zekt workflow completion

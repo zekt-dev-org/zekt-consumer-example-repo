@@ -20,8 +20,8 @@ jobs:
           Write-Host ($event | ConvertTo-Json -Depth 10)
 
           # - SHOW THE PAYLOAD - VALIDATE PROPERTY VALUES:
-          Write-Host ("inputProperty1: " + $event.client_payload.zekt.payload.inputProperty1) -ForegroundColor Yellow
-          Write-Host ("inputProperty2: " + $event.client_payload.zekt.payload.inputProperty2) -ForegroundColor Yellow
+          Write-Host ("resourceType: " + $event.client_payload.zekt.payload.ResourceType) -ForegroundColor Yellow
+          Write-Host ("department: " + $event.client_payload.zekt.payload.Department) -ForegroundColor Yellow
 
 
 
