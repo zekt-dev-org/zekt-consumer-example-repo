@@ -1,0 +1,40 @@
+
+name: Output Commit Message to workflow run
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    echo-commit-message:
+        runs-on: windows-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+              with:
+                fetch-depth: 0
+
+            - name: Echo commit message
+              shell: powershell
+              run: |
+                $commitMessage = git log -1 --pretty=%B
+                Write-Host "Commit Message:"
+                Write-Host $commitMessage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
