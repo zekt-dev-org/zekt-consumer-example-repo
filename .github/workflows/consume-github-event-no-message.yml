@@ -1,0 +1,21 @@
+name: Consume GitHub event from custom provider (no message)
+
+on:
+  repository_dispatch:
+    types: [zekt-workflow-completed]
+
+jobs:
+  handle-zekt-event:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Display event information
+        shell: pwsh
+        run: |
+          $event = '${{ toJson(github.event) }}' | ConvertFrom-Json
+          Write-Host "Full Event Object:" -ForegroundColor Cyan
+          Write-Host ($event | ConvertTo-Json -Depth 10)
+
