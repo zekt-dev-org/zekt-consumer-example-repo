@@ -1,0 +1,33 @@
+name: Triggered across different branches
+
+on:
+  repository_dispatch:
+    types: [zekt-branch-handling-base]
+
+jobs:
+  handle-zekt-event:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Display event information
+        shell: pwsh
+        run: |
+          $event = '${{ toJson(github.event) }}' | ConvertFrom-Json
+          Write-Host "Full Event Object:" -ForegroundColor Cyan
+          Write-Host ($event | ConvertTo-Json -Depth 10)
+
+          # - SHOW THE PAYLOAD - VALIDATE PROPERTY VALUES:
+          Write-Host ("requestType: " + $event.client_payload.zekt.payload.RequestType) -ForegroundColor Yellow
+          Write-Host ("department: " + $event.client_payload.zekt.payload.Department) -ForegroundColor Yellow
+
+
+
+      - name: Process custom Zekt action / workflow completion
+        shell: pwsh
+        run: |
+          Write-Host "Processing zekt-branch-handling-base event type..." -ForegroundColor Green
+          # Add your custom processing logic here
+          Write-Host "Workflow completed successfully!" -ForegroundColor Green
