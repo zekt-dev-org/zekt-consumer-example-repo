@@ -2,7 +2,7 @@ name: Service New Subscription Request
 
 on:
   repository_dispatch:
-    types: [service-new-subscription-request]
+    types: [service-new-subscription]
 
 jobs:
   handle-zekt-event:
@@ -17,10 +17,11 @@ jobs:
         run: |
           $event = '${{ toJson(github.event) }}' | ConvertFrom-Json
           Write-Host "Full Event Object:" -ForegroundColor Cyan
-          Write-Host ($event | ConvertTo-Json -Depth 10)
+          Write-Host ($event) -ForegroundColor Cyan
+
 
           # - SHOW THE PAYLOAD - VALIDATE PROPERTY VALUES:
-          Write-Host ("base_input: " + $event.client_payload.zekt.payload.base_input) -ForegroundColor Yellow
+          # Write-Host ("base_input: " + $event.client_payload.zekt.payload.base_input) -ForegroundColor Yellow
 
 
       - name: Process Zekt workflow completion
@@ -29,3 +30,45 @@ jobs:
           Write-Host "Processing service-new-subscription-request ..." -ForegroundColor Green
           # Add your custom processing logic here
           Write-Host "Workflow completed successfully!" -ForegroundColor Green
+
+
+
+
+  #         jobs:
+  # run:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Read orchestration input
+  #       id: input
+  #       shell: pwsh
+  #       run: |
+  #         $payload = '${{ toJson(github.event.client_payload) }}'
+  #         $json    = $payload | ConvertFrom-Json
+
+  #         # Spec 2.9: orchestration dispatches wrap inputs under .input
+  #         if ($json._zekt.orchestration) {
+  #           $billingAccount = $json.input.billing_account
+  #         } else {
+  #           $billingAccount = $json.billing_account
+  #         }
+  #         "billing_account=$billingAccount" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+  #     - name: Provision subscription
+  #       id: provision
+  #       shell: pwsh
+  #       run: |
+  #         # ... real provisioning work using ${{ steps.input.outputs.billing_account }} ...
+  #         $subscriptionId = "sub-" + (New-Guid).ToString("N").Substring(0, 8)
+
+  #         # Set the value that the NEXT orchestration step will read
+  #         "subscription_id=$subscriptionId" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+  #     - name: Report outputs back to Zekt orchestration
+  #       uses: zekt-dev-org/zekt-action@v3
+  #       with:
+  #         # zekt-action auto-detects _zekt.orchestration from $GITHUB_EVENT_PATH (spec 2.3 / Option B)
+  #         # and stores this JSON as OrchestrationStep.outputPayload
+  #         payload: >
+  #           {
+  #             "subscription_id": "${{ steps.provision.outputs.subscription_id }}"
+  #           }
