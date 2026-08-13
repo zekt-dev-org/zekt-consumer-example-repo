@@ -7,7 +7,11 @@ on:
 jobs:
   handle-zekt-event:
     runs-on: ubuntu-latest
-    
+    permissions:
+      id-token: write   # required — allows zekt-action to obtain an OIDC token
+      contents: read
+
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,6 +28,7 @@ jobs:
           # Write-Host ("base_input: " + $event.client_payload.zekt.payload.base_input) -ForegroundColor Yellow
 
       - name: fake-generated-tenant-and-sub-guids
+        id: work
         shell: pwsh
         run: |
           
@@ -37,7 +42,6 @@ jobs:
 
           "subscription_id=$subGuid" >> $env:GITHUB_OUTPUT
           "tenant_id=$tenantGuid"   >> $env:GITHUB_OUTPUT
-
 
       - name: Process Zekt workflow completion
         shell: pwsh
