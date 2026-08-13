@@ -22,6 +22,23 @@ jobs:
           # - SHOW THE PAYLOAD - VALIDATE PROPERTY VALUES:
           Write-Host ("base_input: " + $event.client_payload.zekt.payload.base_input) -ForegroundColor Yellow
 
+      - name: Echo output object from previous orchestration method
+        id: extract-input-from-orchestration
+        shell: pwsh
+        run: |
+
+          # Values from Service_A are already substituted by Zekt backend
+          $subscriptionId = '${{ github.event.client_payload.input.subscription_id }}'
+          # $tenantId = '${{ github.event.client_payload.input.tenant_id }}'
+          
+          Write-Host "Received from Service_A:"
+          Write-Host "Subscription_id: " + $subscriptionId)
+          # Write-Host "  tenant_id: $tenantId"
+          
+          # Pass to subsequent steps
+          subscription_id=$subscriptionId" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          # "tenant_id=$tenantId" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
 
       - name: Process Zekt workflow completion
         shell: pwsh
