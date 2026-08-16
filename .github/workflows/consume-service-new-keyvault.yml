@@ -4,6 +4,11 @@ on:
   repository_dispatch:
     types: [service-new-keyvault-request]
 
+permissions:
+  id-token: write   # Required by zekt-action for OIDC auth
+  contents: read    # Needed by actions/checkout
+
+
 jobs:
   handle-zekt-event:
     runs-on: ubuntu-latest
@@ -12,16 +17,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Display event information
+      - name: Echo output object from previous orchestration method
+        id: extract-input-from-orchestration
         shell: pwsh
         run: |
-          $event = '${{ toJson(github.event) }}' | ConvertFrom-Json
-          Write-Host "Full Event Object:" -ForegroundColor Cyan
-          Write-Host ($event | ConvertTo-Json -Depth 10)
 
-          # - SHOW THE PAYLOAD - VALIDATE PROPERTY VALUES:
-          Write-Host ("base_input: " + $event.client_payload.zekt.payload.base_input) -ForegroundColor Yellow
-
+          # Values from Service_A are already substituted by Zekt backend
+          $keyvault_name = "kv-myfakekeyvaultname"
+          # $tenantId = '${{ github.event.client_payload.input.tenant_id }}'
+          
+          # Write-Host "Received from Service_A:"
+          Write-Host ("Keyvault_name: " + $keyvault_name)
+          # Write-Host ("keyvault_name: " + $keyvault_name)
+          
+          # Pass to subsequent steps
+          "keyvault_name=$keyvault_name" >> $env:GITHUB_OUTPUT
 
       - name: Process Zekt workflow completion
         shell: pwsh
@@ -30,6 +40,17 @@ jobs:
           # Add your custom processing logic here
           Write-Host "Workflow completed successfully!" -ForegroundColor Green
 
+      - name: Report outputs to Zekt from service-new-keyvault
+        uses: zekt-dev-org/zekt-action@v3
+        with:
+          # No orchestrate: true — this is the provider reporting its output.
+          # zekt-action auto-detects _zekt.orchestration from the event file and
+          # forwards it as orchestration_step_ref so the backend can advance the chain.
+          payload: |
+            {
+              "keyvault_name":        "${{ steps.extract-input-from-orchestration.outputs.keyvault_name }}"
+            }
 
+            
 
           
