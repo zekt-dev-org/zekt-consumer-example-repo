@@ -32,12 +32,13 @@ jobs:
           # $tenantId = '${{ github.event.client_payload.input.tenant_id }}'
           
           # Write-Host "Received from Service_A:"
-          Write-Host "Resourcegroup_name: " + $resourcegroup_name
+          Write-Host ("Resourcegroup_name: " + $resourcegroup_name)
           # Write-Host ("tenant_id: " + $tenantId)
           
           # Pass to subsequent steps
-          "resourcegroup_name=$resourcegroup_name" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          # "tenant_id=$tenantId" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          # "resourcegroup_name=$resourcegroup_name" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+          "resourcegroup_name=$resourcegroup_name" >> $env:GITHUB_OUTPUT
 
 
       - name: Process Zekt workflow completion
