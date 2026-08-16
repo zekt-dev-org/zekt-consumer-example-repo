@@ -36,7 +36,7 @@ jobs:
           # Write-Host ("tenant_id: " + $tenantId)
           
           # Pass to subsequent steps
-          resourcegroup_name=$resourcegroup_name | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "resourcegroup_name=$resourcegroup_name" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           # "tenant_id=$tenantId" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
 
