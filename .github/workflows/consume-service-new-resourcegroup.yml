@@ -4,6 +4,11 @@ on:
   repository_dispatch:
     types: [service-new-resourcegroup-request]
 
+permissions:
+  id-token: write   # Required by zekt-action for OIDC auth
+  contents: read    # Needed by actions/checkout
+
+
 jobs:
   handle-zekt-event:
     runs-on: ubuntu-latest
