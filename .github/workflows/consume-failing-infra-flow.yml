@@ -53,7 +53,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          Write-Error "This step is intentionally failing to simulate a failure scenario." -ForegroundColor Red
+          Write-Error "This step is intentionally failing to simulate a failure scenario."
           throw "Intentional error / exit workflow"
           exit 1  # Exit with a non-zero status to indicate failure
 
