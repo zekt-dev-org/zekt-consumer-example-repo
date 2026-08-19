@@ -1,0 +1,63 @@
+name: New Fake On-prem k8 Namespace
+
+on:
+  repository_dispatch:
+    types: [new-op-k8namespace]
+
+jobs:
+  handle-zekt-event:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # required — allows zekt-action to obtain an OIDC token
+      contents: read
+
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Display event information
+        shell: pwsh
+        run: |
+          $event = '${{ toJson(github.event) }}' | ConvertFrom-Json
+          Write-Host "Full Event Object:" -ForegroundColor Cyan
+          Write-Host ($event) -ForegroundColor Cyan
+
+
+          # - SHOW THE PAYLOAD - VALIDATE PROPERTY VALUES:
+          # Write-Host ("base_input: " + $event.client_payload.zekt.payload.base_input) -ForegroundColor Yellow
+
+      - name: fake-generated-k8-namespace-properties
+        id: work
+        shell: pwsh
+        run: |
+          
+          # Generate fake GUIDs for on-prem k8 namespace properties
+          # --------------------------------------
+          $k8-namespace-Guid = [guid]::NewGuid().ToString()
+          $k8-namespace-name = ("fake-namespace-" + $k8-namespace-Guid)
+
+          Write-Host ("Generated K8 Namespace GUID: " + $k8-namespace-Guid) -ForegroundColor Yellow
+          Write-Host ("Generated K8 Namespace Name: " + $k8-namespace-name) -ForegroundColor Yellow
+
+          "k8-namespace-guid=$k8-namespace-Guid" >> $env:GITHUB_OUTPUT
+          "k8-namespace-name=$k8-namespace-name" >> $env:GITHUB_OUTPUT
+
+      - name: Process Zekt workflow completion
+        shell: pwsh
+        run: |
+          Write-Host "Processing new-op-k8namespace ..." -ForegroundColor Green
+          # Add your custom processing logic here
+          Write-Host "Workflow completed successfully!" -ForegroundColor Green
+
+      - name: Report outputs to Zekt from new-op-k8namespace
+        uses: zekt-dev-org/zekt-action@v3
+        with:
+          # No orchestrate: true — this is the provider reporting its output.
+          # zekt-action auto-detects _zekt.orchestration from the event file and
+          # forwards it as orchestration_step_ref so the backend can advance the chain.
+          payload: |
+            {
+              "k8-namespace-guid": "${{ steps.work.outputs.k8-namespace-guid }}",
+              "k8-namespace-name": "${{ steps.work.outputs.k8-namespace-name }}"
+            }
