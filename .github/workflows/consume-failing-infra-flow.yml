@@ -39,7 +39,7 @@ jobs:
           Write-Host "Workflow completed successfully!" -ForegroundColor Green
 
       - name: Report outputs to Zekt from service-new-failure
-        uses: zekt-dev-org/zekt-action@v3
+        uses: zekt-dev-org/zekt-action@main
         with:
           # No orchestrate: true — this is the provider reporting its output.
           # zekt-action auto-detects _zekt.orchestration from the event file and
