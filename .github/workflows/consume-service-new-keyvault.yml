@@ -50,12 +50,15 @@ jobs:
             {
               "keyvault_name":        "${{ steps.extract-input-from-orchestration.outputs.keyvault_name }}"
             }
-
-      - name: Call re-usable workflow plugin
-        uses: ./.github/workflows/re-usable-workflow-plugin.yml
-        with:
-          call_workflow: true
-            
-
-      
           
+  call-workflow:
+    uses: zekt-dev-org/zekt-consumer-example-repo/.github/workflows/re-usable-workflow-plugin.yml@main
+    with:
+      call_workflow: true
+          
+
+
+
+
+
+
