@@ -1,0 +1,29 @@
+
+
+
+on:
+  workflow_call:
+    inputs:
+      call_workflow:
+        required: true
+        type: boolean
+
+
+jobs:
+  reusable_workflow_job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: re-usable workflow plugin called
+        shell: pwsh
+        run: |
+          Write-Host ("re-usable workflow called: " + ${{ inputs.call_workflow }}) -ForegroundColor Yellow
+
+
+      - name: Processing re-usable Zekt workflow
+        shell: pwsh
+        run: |
+          Write-Host "Processing re-usable workflow from within zekt-service main workflow ..." -ForegroundColor Green

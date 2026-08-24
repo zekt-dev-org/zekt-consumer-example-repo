@@ -51,6 +51,11 @@ jobs:
               "keyvault_name":        "${{ steps.extract-input-from-orchestration.outputs.keyvault_name }}"
             }
 
+      - name: Call re-usable workflow plugin
+        uses: ./.github/workflows/re-usable-workflow-plugin.yml
+        with:
+          call_workflow: true
             
 
+      
           
