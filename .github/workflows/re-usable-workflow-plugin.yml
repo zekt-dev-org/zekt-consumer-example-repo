@@ -20,8 +20,7 @@ jobs:
       - name: re-usable workflow plugin called
         shell: pwsh
         run: |
-          Write-Host ("re-usable workflow called: " + ${{ inputs.call_workflow }}) -ForegroundColor Yellow
-
+          Write-Host ("re-usable workflow called: true")
 
       - name: Processing re-usable Zekt workflow
         shell: pwsh
