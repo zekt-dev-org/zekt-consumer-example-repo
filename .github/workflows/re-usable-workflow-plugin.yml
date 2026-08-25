@@ -26,3 +26,34 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Processing re-usable workflow from within zekt-service main workflow ..." -ForegroundColor Green
+
+      - name: Echo output object from re-usable workflow
+        id: output-from-reusable-workflow
+        shell: pwsh
+        run: |
+
+          $reusable_output = "some-reusable-workflow-output"
+          
+
+          Write-Host ("Reusable output: " + $reusable_output)
+          # Write-Host ("reusable_output: " + $reusable_output)
+          
+          # Pass to subsequent steps
+          "reusable_output=$reusable_output" >> $env:GITHUB_OUTPUT
+
+      - name: Process Zekt workflow completion
+        shell: pwsh
+        run: |
+          Write-Host "Processing reusable-output-from-re-usable-workflow ..." -ForegroundColor Green
+          Write-Host "Re-usable workflow completed successfully!" -ForegroundColor Green
+
+      - name: Report outputs to Zekt from re-usable workflow
+        uses: zekt-dev-org/zekt-action@main
+        with:
+          # No orchestrate: true — this is the provider reporting its output.
+          # zekt-action auto-detects _zekt.orchestration from the event file and
+          # forwards it as orchestration_step_ref so the backend can advance the chain.
+          payload: |
+            {
+              "reusable_output":        "${{ steps.output-from-reusable-workflow.outputs.reusable_output }}"
+            }          
