@@ -34,14 +34,14 @@ jobs:
           
           # Generate fake GUIDs for OCI Autonomous DB properties
           # --------------------------------------
-          $oci-autonomous-db-Guid = [guid]::NewGuid().ToString()
-          $oci-autonomous-db-name = ("fake-oci-autonomous-db-" + $oci-autonomous-db-Guid)
+          $oci_autonomous_db_Guid = [guid]::NewGuid().ToString()
+          $oci_autonomous_db_name = ("fake-oci-autonomous-db-" + $oci_autonomous_db_Guid)
 
-          Write-Host ("Generated OCI Autonomous DB GUID: " + $oci-autonomous-db-Guid) -ForegroundColor Yellow
-          Write-Host ("Generated OCI Autonomous DB Name: " + $oci-autonomous-db-name) -ForegroundColor Yellow
+          Write-Host ("Generated OCI Autonomous DB GUID: " + $oci_autonomous_db_Guid) -ForegroundColor Yellow
+          Write-Host ("Generated OCI Autonomous DB Name: " + $oci_autonomous_db_name) -ForegroundColor Yellow
 
-          "oci-autonomous-db-guid=$oci-autonomous-db-Guid" >> $env:GITHUB_OUTPUT
-          "oci-autonomous-db-name=$oci-autonomous-db-name" >> $env:GITHUB_OUTPUT
+          "oci-autonomous-db-guid=$oci_autonomous_db_Guid" >> $env:GITHUB_OUTPUT
+          "oci-autonomous-db-name=$oci_autonomous_db_name" >> $env:GITHUB_OUTPUT
 
       - name: Process Zekt workflow completion
         shell: pwsh
