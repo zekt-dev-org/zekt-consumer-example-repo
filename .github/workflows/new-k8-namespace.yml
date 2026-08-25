@@ -34,14 +34,14 @@ jobs:
           
           # Generate fake GUIDs for on-prem k8 namespace properties
           # --------------------------------------
-          $k8-namespace-Guid = [guid]::NewGuid().ToString()
-          $k8-namespace-name = ("fake-namespace-" + $k8-namespace-Guid)
+          $k8_namespace_Guid = [guid]::NewGuid().ToString()
+          $k8_namespace_name = ("fake-namespace-" + $k8_namespace_Guid)
 
-          Write-Host ("Generated K8 Namespace GUID: " + $k8-namespace-Guid) -ForegroundColor Yellow
-          Write-Host ("Generated K8 Namespace Name: " + $k8-namespace-name) -ForegroundColor Yellow
+          Write-Host ("Generated K8 Namespace GUID: " + $k8_namespace_Guid) -ForegroundColor Yellow
+          Write-Host ("Generated K8 Namespace Name: " + $k8_namespace_name) -ForegroundColor Yellow
 
-          "k8-namespace-guid=$k8-namespace-Guid" >> $env:GITHUB_OUTPUT
-          "k8-namespace-name=$k8-namespace-name" >> $env:GITHUB_OUTPUT
+          "k8-namespace-guid=$k8_namespace_Guid" >> $env:GITHUB_OUTPUT
+          "k8-namespace-name=$k8_namespace_name" >> $env:GITHUB_OUTPUT
 
       - name: Process Zekt workflow completion
         shell: pwsh
