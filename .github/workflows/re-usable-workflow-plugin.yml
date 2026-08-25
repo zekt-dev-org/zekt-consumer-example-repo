@@ -34,7 +34,6 @@ jobs:
 
           $reusable_output = "some-reusable-workflow-output"
           
-
           Write-Host ("Reusable output: " + $reusable_output)
           # Write-Host ("reusable_output: " + $reusable_output)
           
