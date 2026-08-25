@@ -51,10 +51,10 @@ jobs:
               "keyvault_name":        "${{ steps.extract-input-from-orchestration.outputs.keyvault_name }}"
             }
           
-  call-workflow:
-    uses: zekt-dev-org/zekt-consumer-example-repo/.github/workflows/re-usable-workflow-plugin.yml@main
-    with:
-      call_workflow: true
+  # call-workflow:
+  #   uses: zekt-dev-org/zekt-consumer-example-repo/.github/workflows/re-usable-workflow-plugin.yml@main
+  #   with:
+  #     call_workflow: true
           
 
 
