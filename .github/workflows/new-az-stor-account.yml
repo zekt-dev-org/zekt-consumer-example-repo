@@ -1,0 +1,63 @@
+name: New Azure Storage Account
+
+on:
+  repository_dispatch:
+    types: [new-az-storaccount]
+
+jobs:
+  handle-zekt-event:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # required — allows zekt-action to obtain an OIDC token
+      contents: read
+
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Display event information
+        shell: pwsh
+        run: |
+          $event = '${{ toJson(github.event) }}' | ConvertFrom-Json
+          Write-Host "Full Event Object:" -ForegroundColor Cyan
+          Write-Host ($event) -ForegroundColor Cyan
+
+
+          # - SHOW THE PAYLOAD - VALIDATE PROPERTY VALUES:
+          # Write-Host ("base_input: " + $event.client_payload.zekt.payload.base_input) -ForegroundColor Yellow
+
+      - name: fake-generated-az-storageaccount
+        id: work
+        shell: pwsh
+        run: |
+          
+          # Generate fake GUIDs for Azure Storage Account properties
+          # --------------------------------------
+          $az_storageaccount_Guid = [guid]::NewGuid().ToString()
+          $az_storageaccount_name = ("fake-storageaccount-" + $az_storageaccount_Guid)
+
+          Write-Host ("Generated Azure Storage Account GUID: " + $az_storageaccount_Guid) -ForegroundColor Yellow
+          Write-Host ("Generated Azure Storage Account Name: " + $az_storageaccount_name) -ForegroundColor Yellow
+
+          "az-storageaccount-guid=$az_storageaccount_Guid" >> $env:GITHUB_OUTPUT
+          "az-storageaccount-name=$az_storageaccount_name" >> $env:GITHUB_OUTPUT
+
+      - name: Process Zekt workflow completion
+        shell: pwsh
+        run: |
+          Write-Host "Processing new-az-storaccount ..." -ForegroundColor Green
+          # Add your custom processing logic here
+          Write-Host "Workflow completed successfully!" -ForegroundColor Green
+
+      - name: Report outputs to Zekt from new-az-storaccount
+        uses: zekt-dev-org/zekt-action@main
+        with:
+          # No orchestrate: true — this is the provider reporting its output.
+          # zekt-action auto-detects _zekt.orchestration from the event file and
+          # forwards it as orchestration_step_ref so the backend can advance the chain.
+          payload: |
+            {
+              "storageaccount-id": "${{ steps.work.outputs.az-storageaccount-guid }}",
+              "storageaccount-name": "${{ steps.work.outputs.az-storageaccount-name }}"
+            }
