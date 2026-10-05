@@ -20,6 +20,7 @@ jobs:
           Write-Host ($event | ConvertTo-Json -Depth 10)
 
       - name: Decrypt shielded payload
+        id: decrypt
         shell: pwsh
         env:
           PRIVATE_KEY: ${{ secrets.SHIELD_PRIV_KEY }}
@@ -93,8 +94,12 @@ jobs:
           "EOF" >> $env:GITHUB_OUTPUT
 
       - name: Use decrypted payload
+        shell: pwsh
+        env:
+          # Passed through env, not inlined: a quote in the payload would break the script.
+          DECRYPTED_PAYLOAD: ${{ steps.decrypt.outputs.DECRYPTED_PAYLOAD }}
         run: |
-          $payload = '${{ steps.zekt.outputs.DECRYPTED_PAYLOAD }}' | ConvertFrom-Json
+          $payload = $env:DECRYPTED_PAYLOAD | ConvertFrom-Json
           Write-Host "Environment: $($payload.environment)"
 
       - name: Process Zekt workflow completion
