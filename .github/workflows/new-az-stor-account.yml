@@ -27,6 +27,29 @@ jobs:
           # - SHOW THE PAYLOAD - VALIDATE PROPERTY VALUES:
           # Write-Host ("base_input: " + $event.client_payload.zekt.payload.base_input) -ForegroundColor Yellow
 
+
+      - name: Submit and wait - 2
+        id: orch-nest-second
+        uses: zekt-dev-org/zekt-action@main
+        with:
+          orchestrate: true
+          wait: true                      # Block until completed | failed | timed_out
+          payload: |
+            {
+              "default_service_owner": "zekt-dev-org",
+              "services": [
+                {
+                  "step_id": "push-image-registry",
+                  "service_slug": "push-image-container-to-registry",
+                  "input": {
+                    "name": "myfavouriteStorageAccount",
+                    "environment": "test"
+                  }
+                }
+              ]
+            }
+
+
       - name: fake-generated-az-storageaccount
         id: work
         shell: pwsh
@@ -42,6 +65,23 @@ jobs:
 
           "az-storageaccount-guid=$az_storageaccount_Guid" >> $env:GITHUB_OUTPUT
           "az-storageaccount-name=$az_storageaccount_name" >> $env:GITHUB_OUTPUT
+
+      - name: get-pushed-image-from-parent-workflow
+        id: parentGets
+        shell: pwsh
+        run: |
+          
+          # Get pushed image details from the parent workflow
+          # -------------------------------------------------
+
+          $image_full_name = ${{ steps.orch-nest-second.outputs.image_full_name }}
+          $image_tag = ${{ steps.orch-nest-second.outputs.image_tag }}
+          $image_name = ${{ steps.orch-nest-second.outputs.image_name }}
+
+          # "image_full_name=$image_full_name" >> $env:GITHUB_OUTPUT
+          # "image_tag=$image_tag" >> $env:GITHUB_OUTPUT
+          # "image_name=$image_name" >> $env:GITHUB_OUTPUT
+
 
       - name: Process Zekt workflow completion
         shell: pwsh
@@ -61,3 +101,7 @@ jobs:
               "storageaccount-id": "${{ steps.work.outputs.az-storageaccount-guid }}",
               "storageaccount-name": "${{ steps.work.outputs.az-storageaccount-name }}"
             }
+
+
+
+
