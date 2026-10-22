@@ -67,7 +67,6 @@ jobs:
               ]
             }
 
-
       - name: get-pushed-image-from-parent-workflow
         id: parentGets
         shell: pwsh
